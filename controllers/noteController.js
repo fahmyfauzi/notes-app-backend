@@ -40,7 +40,7 @@ const createNote = async (req, res) => {
     });
   }
 };
-
+// process edit note
 const editNote = async (req, res) => {
   try {
     // tangkap id melalui parameter
@@ -75,8 +75,40 @@ const editNote = async (req, res) => {
   }
 };
 
+// process delete note
+const deleteNote = async (req, res) => {
+  try {
+    //tangkap id lewat parameter
+    const id = req.params.id;
+
+    // cari id dan hapus
+    const note = await Note.findByIdAndRemove(id);
+
+    // jika note tidak ditemukan
+    if (!note) {
+      res.status(404).json({
+        status: "fail",
+        mesaage: "Catatan gagal dihapus. Id catatan tidak ditemukan",
+      });
+    }
+    // respon success delete
+    res.status(200).json({
+      status: "Success",
+      message: "Catatan berhasil dihapus",
+      data: note,
+    });
+  } catch (error) {
+    // respon error
+    res.status(500).json({
+      status: "fail",
+      mesaage: error.mesaage,
+    });
+  }
+};
+
 module.exports = {
   getAllNotes,
   createNote,
   editNote,
+  deleteNote,
 };
