@@ -3,13 +3,33 @@ const Note = require("../models/noteModel");
 // process get all notes
 const getAllNotes = async (req, res) => {
   try {
-    // find all notes
-    const notes = await Note.find({});
+    //mendapatkan nomor page dari query default 1
+    const page = parseInt(req.query.page) || 1;
+
+    // mendapatkan limit dari query default ditampilkan 5 data
+    const limit = parseInt(req.query.limit) || 5;
+
+    // Menghitung item yang harus dilewati (skip) berdasarkan halaman dan jumlah item per halaman
+    const skip = (page - 1) * limit;
+
+    // find all notes dan  Mengambil data dengan paginasi
+    const notes = await Note.find({}).skip(skip).limit(limit);
+
+    // Menghitung jumlah total catatan di database
+    const totalNotes = await Note.countDocuments();
+
+    // total page
+    const totalPages = Math.ceil(totalNotes / limit);
 
     // retur respon success
     res.status(200).json({
       status: "Success",
-      data: notes,
+      data: {
+        notes,
+        totalPages,
+        currentPage: page,
+        totalItem: totalNotes,
+      },
     });
   } catch (error) {
     // return respon error
